@@ -15,7 +15,8 @@ object Logic {
       ret += 100 * parts(0).toInt
     }
     if (parts.length >= 2) {
-      ret += parts(1).toInt
+      // Treat 1.5 as 1.50
+      ret += (parts(1) + "00").slice(0,2).toInt
     }
     ret
   }
