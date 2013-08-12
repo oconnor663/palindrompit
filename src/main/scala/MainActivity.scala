@@ -5,6 +5,7 @@ import _root_.android.os.Bundle
 import android.widget.{TextView, EditText}
 import android.text.{Editable, TextWatcher}
 import android.util.Log
+import scala.collection.mutable.ArrayBuffer
 
 object Logic {
   def priceToCents(price: String): Int = {
@@ -28,11 +29,33 @@ object Logic {
     s == s.reverse
   }
 
-  def palindromePairs(x: Int): Vector[Int] = {
-    var pairs = Vector[Int]()
-    for (pair <- 1 to x) {
-      if (isPalindrome(pair) && isPalindrome(x + pair)) {
-        pairs :+= pair
+  def allPalindromes(length: Int) = {
+    val ret = new ArrayBuffer[Int]
+    val partLen = (length + 1) / 2
+    val evenLen = (length % 2 == 0)
+    for (part <- 1 until math.pow(10, partLen).toInt) {
+      if (part % 10 != 0) {
+        val s = ("%0" + partLen + "d").format(part)
+        var palindrome = 0
+        if (evenLen) {
+          palindrome = (s.reverse + s).toInt
+        }
+        else {
+          palindrome = (s.reverse.slice(0, partLen-1) + s).toInt
+        }
+        ret.append(palindrome)
+      }
+    }
+    ret.sorted
+  }
+
+  def palindromePairs(x: Int): ArrayBuffer[Int] = {
+    var pairs = ArrayBuffer[Int]()
+    for (length <- 1 to x.toString.length) {
+      for (pal <- allPalindromes(length)) {
+        if (isPalindrome(x + pal)) {
+          pairs.append(pal)
+        }
       }
     }
     pairs
