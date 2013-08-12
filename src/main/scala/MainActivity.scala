@@ -8,6 +8,9 @@ import android.util.Log
 import scala.collection.mutable.ArrayBuffer
 
 object Logic {
+  val allPalCache = scala.collection.mutable.HashMap.empty[Int, ArrayBuffer[Int]]
+  val pairsCache = scala.collection.mutable.HashMap.empty[Int, ArrayBuffer[Int]]
+
   def priceToCents(price: String): Int = {
     val parts = price.split("\\.")
     var ret = 0
@@ -30,7 +33,11 @@ object Logic {
     s == s.reverse
   }
 
-  def allPalindromes(length: Int) = {
+  def allPalindromes(length: Int): ArrayBuffer[Int] = {
+    if (allPalCache.contains(length)) {
+      return allPalCache(length)
+    }
+
     val ret = new ArrayBuffer[Int]
     val partLen = (length + 1) / 2
     val evenLen = (length % 2 == 0)
@@ -47,10 +54,14 @@ object Logic {
         ret.append(palindrome)
       }
     }
-    ret.sorted
+    allPalCache(length) = ret.sorted
+    return allPalCache(length)
   }
 
   def palindromePairs(x: Int): ArrayBuffer[Int] = {
+    if (pairsCache.contains(x)) {
+      return pairsCache(x)
+    }
     var pairs = ArrayBuffer[Int]()
     for (length <- 1 to x.toString.length) {
       for (pal <- allPalindromes(length)) {
@@ -59,7 +70,8 @@ object Logic {
         }
       }
     }
-    pairs
+    pairsCache(x) = pairs
+    return pairs
   }
 }
 
