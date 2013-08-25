@@ -8,9 +8,10 @@ object General {
     name := "Palindrompit",
     version := "0.1",
     versionCode := 0,
-    scalaVersion := "2.9.2",
+    scalaVersion := "2.10.2",
     platformName in Android := "android-16",
-    javacOptions ++= Seq("-encoding", "UTF-8", "-source", "1.6", "-target", "1.6")
+    javacOptions ++= Seq("-encoding", "UTF-8", "-source", "1.6", "-target", "1.6"),
+    libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.2.0"
   )
 
   val proguardSettings = Seq (

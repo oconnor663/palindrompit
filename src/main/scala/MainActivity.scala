@@ -7,7 +7,9 @@ import android.text.{Editable, TextWatcher}
 import android.util.Log
 import scala.collection.mutable.ArrayBuffer
 
-import scala.actors.Actor
+import akka.actor.Actor
+import akka.actor.ActorSystem
+import akka.actor.Props
 
 object Logic {
   val allPalCache = scala.collection.mutable.HashMap.empty[Int, ArrayBuffer[Int]]
@@ -93,15 +95,17 @@ object Logic {
   }
 }
 
-class PalindromeWorker(mainActivity: MainActivity) extends Actor {
-  def act() {
-    val price = mainActivity.input.getText().toString()
-    val output = Logic.outputFromInput(price)
-    mainActivity.runOnUiThread(new Runnable {
-      def run() {
-        mainActivity.output.setText(output)
-      }
-    })
+class PalindrompitActor(mainActivity: MainActivity) extends Actor {
+  def receive = {
+    case "run" => {
+      val price = mainActivity.input.getText().toString()
+      val output = Logic.outputFromInput(price)
+      mainActivity.runOnUiThread(new Runnable {
+        def run() {
+          mainActivity.output.setText(output)
+        }
+      })
+    }
   }
 }
 
@@ -118,6 +122,7 @@ class MainActivity extends Activity with TypedActivity {
     output = findView(TR.output)
 
     val thisActivity = this
+    val system = ActorSystem("PalindrompitSystem")
     input.addTextChangedListener(new TextWatcher {
       def onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         output.setText("")
@@ -125,8 +130,8 @@ class MainActivity extends Activity with TypedActivity {
           return
         }
 
-        val actor = new PalindromeWorker(thisActivity)
-        actor.start
+        val actor = system.actorOf(Props[PalindrompitActor])
+        actor ! "run"
       }
       def afterTextChanged(s: Editable) {}
       def beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
