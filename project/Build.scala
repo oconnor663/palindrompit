@@ -15,7 +15,8 @@ object General {
   )
 
   val proguardSettings = Seq (
-    useProguard in Android := true
+    useProguard in Android := true,
+    proguardOption in Android := "-keep class akka.** {*;} -keep class scala.collection.SeqLike { public protected *; }"
   )
 
   lazy val fullAndroidSettings =
