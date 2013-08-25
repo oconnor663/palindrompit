@@ -122,7 +122,7 @@ class MainActivity extends Activity with TypedActivity {
     output = findView(TR.output)
 
     val thisActivity = this
-    val system = ActorSystem("PalindrompitSystem")
+    val system = ActorSystem()
     input.addTextChangedListener(new TextWatcher {
       def onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         output.setText("")
@@ -130,7 +130,7 @@ class MainActivity extends Activity with TypedActivity {
           return
         }
 
-        val actor = system.actorOf(Props[PalindrompitActor])
+        val actor = system.actorOf(Props(new PalindrompitActor(thisActivity)))
         actor ! "run"
       }
       def afterTextChanged(s: Editable) {}
