@@ -7,6 +7,8 @@ import android.text.{Editable, TextWatcher}
 import android.util.Log
 import scala.collection.mutable.ArrayBuffer
 
+import scala.actors.Actor
+
 object Logic {
   val allPalCache = scala.collection.mutable.HashMap.empty[Int, ArrayBuffer[Int]]
   val pairsCache = scala.collection.mutable.HashMap.empty[Int, ArrayBuffer[Int]]
@@ -73,6 +75,30 @@ object Logic {
     pairsCache(x) = pairs
     return pairs
   }
+
+  def outputFromInput(input: String): String = {
+    val cents = priceToCents(input)
+    val pairs = palindromePairs(cents)
+    var text = ""
+    for (pair <- pairs) {
+      val total = cents + pair
+      val percentage = pair * 100 / cents
+      text += percentage + "% " + formatPrice(pair) + " " + formatPrice(total) + "\n"
+    }
+    text
+  }
+}
+
+class PalindromeWorker(mainActivity: MainActivity) extends Actor {
+  def act() {
+    val price = mainActivity.input.getText().toString()
+    val output = Logic.outputFromInput(price)
+    mainActivity.runOnUiThread(new Runnable {
+      def run() {
+        mainActivity.output.setText(output)
+      }
+    })
+  }
 }
 
 class MainActivity extends Activity with TypedActivity {
@@ -87,22 +113,16 @@ class MainActivity extends Activity with TypedActivity {
     input = findView(TR.input)
     output = findView(TR.output)
 
+    val thisActivity = this
     input.addTextChangedListener(new TextWatcher {
       def onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-        val price = input.getText().toString()
-        if (price == "") {
+        output.setText("")
+        if (input.getText.toString == "") {
           return
         }
-        val cents = Logic.priceToCents(price)
-        val pairs = Logic.palindromePairs(cents)
-        var text = ""
-        for (pair <- pairs) {
-          val total = cents + pair
-          val percentage = pair * 100 / cents
-          text += percentage + "% " + Logic.formatPrice(pair) + " " + Logic.formatPrice(total) + "\n"
-        }
-        output.setText(text)
-        Log.e("JACK", text)
+
+        val actor = new PalindromeWorker(thisActivity)
+        actor.start
       }
       def afterTextChanged(s: Editable) {}
       def beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
