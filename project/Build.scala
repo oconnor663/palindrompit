@@ -24,8 +24,7 @@ object General {
     proguardSettings ++
     AndroidManifestGenerator.settings ++
     AndroidMarketPublish.settings ++ Seq (
-      keyalias in Android := "change-me",
-      libraryDependencies += "org.scalatest" %% "scalatest" % "1.8" % "test"
+      keyalias in Android := "change-me"
     )
 }
 
@@ -35,14 +34,4 @@ object AndroidBuild extends Build {
     file("."),
     settings = General.fullAndroidSettings
   )
-
-  lazy val tests = Project (
-    "tests",
-    file("tests"),
-    settings = General.settings ++
-               AndroidTest.androidSettings ++
-               General.proguardSettings ++ Seq (
-      name := "PalindrompitTests"
-    )
-  ) dependsOn main
 }
