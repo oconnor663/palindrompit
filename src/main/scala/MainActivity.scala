@@ -80,10 +80,14 @@ object Logic {
     val cents = priceToCents(input)
     val pairs = palindromePairs(cents)
     var text = ""
-    for (pair <- pairs) {
-      val total = cents + pair
-      val percentage = pair * 100 / cents
-      text += percentage + "% " + formatPrice(pair) + " " + formatPrice(total) + "\n"
+    if (pairs.length == 0) {
+      text = "no solution"
+    } else {
+      for (pair <- pairs) {
+        val total = cents + pair
+        val percentage = pair * 100 / cents
+        text += percentage + "% " + formatPrice(pair) + " " + formatPrice(total) + "\n"
+      }
     }
     text
   }
