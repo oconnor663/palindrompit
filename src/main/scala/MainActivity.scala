@@ -95,13 +95,13 @@ object Logic {
   }
 }
 
-class PalindromeWorker(mainActivity: MainActivity) extends Actor {
+class PalindromeWorker(mainActivity: MainActivity, id: Int) extends Actor {
   def act() {
     val price = mainActivity.input.getText().toString()
     val output = Logic.outputFromInput(price)
     mainActivity.runOnUiThread(new Runnable {
       def run() {
-        mainActivity.output.setText(output)
+        mainActivity.submitWork(id, output)
       }
     })
   }
@@ -109,8 +109,9 @@ class PalindromeWorker(mainActivity: MainActivity) extends Actor {
 
 class MainActivity extends Activity with TypedActivity {
 
-  var input : EditText= null
-  var output : TextView = null
+  var input: EditText= null
+  var output: TextView = null
+  var currentJob: Int = 0
 
   override def onCreate(bundle: Bundle) {
     super.onCreate(bundle)
@@ -122,16 +123,23 @@ class MainActivity extends Activity with TypedActivity {
     val thisActivity = this
     input.addTextChangedListener(new TextWatcher {
       def onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+        currentJob += 1
         output.setText("")
         if (input.getText.toString == "") {
           return
         }
 
-        val actor = new PalindromeWorker(thisActivity)
-        actor.start
+        val worker = new PalindromeWorker(thisActivity, currentJob)
+        worker.start
       }
       def afterTextChanged(s: Editable) {}
       def beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
     })
+  }
+
+  def submitWork(job: Int, work: String) {
+    if (job == currentJob) {
+        output.setText(work)
+    }
   }
 }
