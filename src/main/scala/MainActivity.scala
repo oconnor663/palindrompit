@@ -5,13 +5,15 @@ import _root_.android.os.Bundle
 import android.widget.{TextView, EditText}
 import android.text.{Editable, TextWatcher}
 import android.util.Log
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable._
 
 import scala.actors.Actor
 
 object Logic {
-  val allPalCache = scala.collection.mutable.HashMap.empty[Int, ArrayBuffer[Int]]
-  val pairsCache = scala.collection.mutable.HashMap.empty[Int, ArrayBuffer[Int]]
+  val allPalCache = new HashMap[Int, ArrayBuffer[Int]]
+    with SynchronizedMap[Int, ArrayBuffer[Int]]
+  val pairsCache = new HashMap[Int, ArrayBuffer[Int]]
+    with SynchronizedMap[Int, ArrayBuffer[Int]]
 
   def priceToCents(price: String): Int = {
     val parts = price.split("\\.")
