@@ -142,6 +142,7 @@ class MainActivity extends Activity with TypedActivity {
           return
         }
 
+        output.setText("thinking...")
         val worker = new PalindromeWorker(thisActivity, currentJob)
         worker.start
       }
