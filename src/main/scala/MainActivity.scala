@@ -6,6 +6,7 @@ import android.widget.{TextView, EditText}
 import android.text.{Editable, TextWatcher}
 import android.util.Log
 import scala.collection.mutable._
+import scala.util.control.Breaks._
 
 import scala.actors.Actor
 
@@ -78,11 +79,17 @@ object Logic {
     if (pairsCache.contains(cents)) {
       return pairsCache(cents)
     }
-    var pairs = ArrayBuffer[Int]()
-    for (length <- 1 to cents.toString.length) {
-      for (pal <- allPalindromes(length)) {
-        if (isPalindrome(cents + pal)) {
-          pairs.append(pal)
+    val pairs = ArrayBuffer[Int]()
+    breakable {
+      for (length <- 1 to cents.toString.length) {
+        for (pal <- allPalindromes(length)) {
+          if (pal >= cents) {
+            // No tips higher than the input amount.
+            break
+          }
+          if (isPalindrome(cents + pal)) {
+            pairs.append(pal)
+          }
         }
       }
     }
