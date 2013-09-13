@@ -18,10 +18,10 @@ object Logic {
   def priceToCents(price: String): Int = {
     val parts = price.split("\\.")
     var ret = 0
-    if (parts.length >= 1) {
+    if (parts.length >= 1 && parts(0) != "") {
       ret += 100 * parts(0).toInt
     }
-    if (parts.length >= 2) {
+    if (parts.length >= 2 && parts(1) != "") {
       // Treat 1.5 as 1.50
       ret += (parts(1) + "00").slice(0,2).toInt
     }
@@ -29,11 +29,16 @@ object Logic {
   }
 
   def formatPrice(cents: Int): String = {
-    "$%d.%02d".format(cents/100, cents%100)
+    if (cents >= 100) {
+      return "$%d.%02d".format(cents/100, cents%100)
+    } else {
+      return ".%02d".format(cents)
+    }
   }
 
-  def isPalindrome(x: Int): Boolean = {
-    val s = x.toString
+  def isPalindrome(cents: Int): Boolean = {
+    // Deal with the leading zero on a single-digit cent value
+    val s = ("%02d" format cents)
     s == s.reverse
   }
 
@@ -43,6 +48,13 @@ object Logic {
     }
 
     val ret = new ArrayBuffer[Int]
+
+    if (length < 2) {
+      // There are no palindromes of length 1, because we're counting cents
+      // and there's a leading zero.
+      return ret
+    }
+
     val partLen = (length + 1) / 2
     val evenLen = (length % 2 == 0)
     for (part <- 1 until math.pow(10, partLen).toInt) {
@@ -62,19 +74,19 @@ object Logic {
     return allPalCache(length)
   }
 
-  def palindromePairs(x: Int): ArrayBuffer[Int] = {
-    if (pairsCache.contains(x)) {
-      return pairsCache(x)
+  def palindromePairs(cents: Int): ArrayBuffer[Int] = {
+    if (pairsCache.contains(cents)) {
+      return pairsCache(cents)
     }
     var pairs = ArrayBuffer[Int]()
-    for (length <- 1 to x.toString.length) {
+    for (length <- 1 to cents.toString.length) {
       for (pal <- allPalindromes(length)) {
-        if (isPalindrome(x + pal)) {
+        if (isPalindrome(cents + pal)) {
           pairs.append(pal)
         }
       }
     }
-    pairsCache(x) = pairs
+    pairsCache(cents) = pairs
     return pairs
   }
 
