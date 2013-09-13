@@ -9,6 +9,7 @@ import scala.collection.mutable._
 import scala.util.control.Breaks._
 
 import scala.actors.Actor
+import android.view.WindowManager
 
 object Logic {
   val allPalCache = new HashMap[Int, ArrayBuffer[Int]]
@@ -149,6 +150,9 @@ class MainActivity extends Activity with TypedActivity {
   override def onCreate(bundle: Bundle) {
     super.onCreate(bundle)
     setContentView(R.layout.main)
+
+    // Keyboard isn't showing by default. This seems to be a workaround.
+    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
 
     input = findView(TR.input)
     output = findView(TR.output)
