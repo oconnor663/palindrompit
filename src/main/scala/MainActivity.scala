@@ -115,17 +115,21 @@ object Logic {
     }
 
     val pairs = palindromePairs(cents)
-    var text = ""
     if (pairs.length == 0) {
-      text = "no solution"
+      return "no solution"
     } else {
-      for (pair <- pairs) {
+      var text = ""
+      for (i <- 0 until pairs.length) {
+        val pair = pairs(i)
         val total = cents + pair
         val percentage = pair * 100 / cents
-        text += percentage + "% " + formatPrice(pair) + " " + formatPrice(total) + "\n"
+        text += percentage + "% " + formatPrice(pair) + " " + formatPrice(total)
+        if (i+1 < pairs.length) {
+          text += "\n"
+        }
       }
+      return text
     }
-    text
   }
 }
 
