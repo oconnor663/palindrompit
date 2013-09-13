@@ -136,8 +136,9 @@ class MainActivity extends Activity with TypedActivity {
     input.addTextChangedListener(new TextWatcher {
       def onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         currentJob += 1
-        output.setText("")
-        if (input.getText.toString == "") {
+        val text = input.getText.toString
+        if (text == "" || text == ".") {
+          output.setText("")
           return
         }
 
