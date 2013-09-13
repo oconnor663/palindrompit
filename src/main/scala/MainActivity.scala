@@ -20,11 +20,19 @@ object Logic {
     val parts = price.split("\\.")
     var ret = 0
     if (parts.length >= 1 && parts(0) != "") {
-      ret += 100 * parts(0).toInt
+      val dollarsPlace = parts(0).toInt
+      if (dollarsPlace >= 1000000) {
+        throw new IllegalArgumentException("No prices higher than $1 million")
+      }
+      ret += 100 * dollarsPlace
     }
     if (parts.length >= 2 && parts(1) != "") {
+      val centsPlace = parts(1).toInt
+      if (centsPlace >= 100) {
+        throw new IllegalArgumentException("Cents place too long")
+      }
       // Treat 1.5 as 1.50
-      ret += (parts(1) + "00").slice(0,2).toInt
+      ret += centsPlace
     }
     ret
   }
@@ -98,7 +106,13 @@ object Logic {
   }
 
   def outputFromInput(input: String): String = {
-    val cents = priceToCents(input)
+    var cents = 0
+    try {
+      cents = priceToCents(input)
+    } catch {
+      case _ => return "Check yourself before you wreck yourself!"
+    }
+
     val pairs = palindromePairs(cents)
     var text = ""
     if (pairs.length == 0) {
@@ -149,7 +163,7 @@ class MainActivity extends Activity with TypedActivity {
           return
         }
 
-        output.setText("thinking...")
+        output.setText("Thinking...")
         val worker = new PalindromeWorker(thisActivity, currentJob)
         worker.start
       }
