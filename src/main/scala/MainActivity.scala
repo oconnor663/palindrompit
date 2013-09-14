@@ -2,14 +2,15 @@ package com.jack5.palindrompit
 
 import _root_.android.app.Activity
 import _root_.android.os.Bundle
-import android.widget.{TextView, EditText}
+import android.widget._
 import android.text.{Editable, TextWatcher}
-import android.util.Log
+import android.util.{TypedValue, Log}
 import scala.collection.mutable._
 import scala.util.control.Breaks._
 
 import scala.actors.Actor
-import android.view.WindowManager
+import android.view.{Gravity, ViewGroup, View, WindowManager}
+import android.graphics.Color
 
 object Logic {
   val allPalCache = new HashMap[Int, ArrayBuffer[Int]]
@@ -106,40 +107,60 @@ object Logic {
     return pairs
   }
 
-  def outputFromInput(input: String): String = {
+  def pad(input: String, length: Int): String = {
+    var output = input
+    while (output.length < length) {
+      output = " " + output
+    }
+    output
+  }
+
+  class Tip {
+    var percentage = ""
+    var tip = ""
+    var total = ""
+  }
+
+  class TipResult {
+    var error: String = ""
+    var tips = new ArrayBuffer[Tip]
+  }
+
+  def tipResultFromPrice(price: String): TipResult = {
+    var result = new TipResult
     var cents = 0
     try {
-      cents = priceToCents(input)
+      cents = priceToCents(price)
     } catch {
-      case _ => return "Check yourself before you wreck yourself!"
+      case _ => {
+        result.error = "Check yourself before you wreck yourself!"
+        return result
+      }
     }
 
     val pairs = palindromePairs(cents)
     if (pairs.length == 0) {
-      return "no solution"
+      result.error = "No solution."
     } else {
-      var text = ""
-      for (i <- 0 until pairs.length) {
-        val pair = pairs(i)
-        val total = cents + pair
-        val percentage = pair * 100 / cents
-        text += percentage + "% " + formatPrice(pair) + " " + formatPrice(total)
-        if (i+1 < pairs.length) {
-          text += "\n"
-        }
+      for (pair <- pairs) {
+        val tip = new Tip
+        tip.tip = formatPrice(pair)
+        tip.total = formatPrice(cents + pair)
+        tip.percentage = "%" + (pair * 100 / cents)
+        result.tips.append(tip)
       }
-      return text
     }
+    return result
   }
 }
 
 class PalindromeWorker(mainActivity: MainActivity, id: Int) extends Actor {
   def act() {
     val price = mainActivity.input.getText().toString()
-    val output = Logic.outputFromInput(price)
+    val result = Logic.tipResultFromPrice(price)
     mainActivity.runOnUiThread(new Runnable {
       def run() {
-        mainActivity.submitWork(id, output)
+        mainActivity.submitWork(id, result)
       }
     })
   }
@@ -148,7 +169,8 @@ class PalindromeWorker(mainActivity: MainActivity, id: Int) extends Actor {
 class MainActivity extends Activity with TypedActivity {
 
   var input: EditText= null
-  var output: TextView = null
+  var output_text: TextView = null
+  var output_table: TableLayout = null
   var currentJob: Int = 0
 
   override def onCreate(bundle: Bundle) {
@@ -159,7 +181,8 @@ class MainActivity extends Activity with TypedActivity {
     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
 
     input = findView(TR.input)
-    output = findView(TR.output)
+    output_text = findView(TR.output_text)
+    output_table = findView(TR.output_table)
 
     val thisActivity = this
     input.addTextChangedListener(new TextWatcher {
@@ -167,11 +190,11 @@ class MainActivity extends Activity with TypedActivity {
         currentJob += 1
         val text = input.getText.toString
         if (text == "" || text == ".") {
-          output.setText("")
+          setOutputText("")
           return
         }
 
-        output.setText("Thinking...")
+        setOutputText("Thinking...")
         val worker = new PalindromeWorker(thisActivity, currentJob)
         worker.start
       }
@@ -180,9 +203,51 @@ class MainActivity extends Activity with TypedActivity {
     })
   }
 
-  def submitWork(job: Int, work: String) {
-    if (job == currentJob) {
-        output.setText(work)
+  def setOutputText(text: String) {
+    output_text.setText(text)
+    output_text.setVisibility(View.VISIBLE)
+    output_table.setVisibility(View.GONE)
+  }
+
+  def makeRow(s1: String, s2: String, s3: String): TableRow = {
+    def makeTextView(text: String): TextView = {
+      val view = new TextView(this)
+      view.setText(text)
+      view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18)
+      view.setLayoutParams(new TableRow.LayoutParams(
+          0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f))
+      view.setGravity(Gravity.CENTER)
+      view
+    }
+    val row = new TableRow(this)
+    row.addView(makeTextView(s1))
+    row.addView(makeTextView(s2))
+    row.addView(makeTextView(s3))
+    row
+  }
+
+  def submitWork(job: Int, work: Logic.TipResult) {
+    if (job != currentJob) {
+      return
+    }
+
+    if (work.error != "") {
+      setOutputText(work.error)
+    } else {
+      output_text.setVisibility(View.GONE)
+      output_table.setVisibility(View.VISIBLE)
+      output_table.removeAllViews()
+      val headerRow = makeRow("Percentage", "Tip", "Total")
+      output_table.addView(headerRow)
+      var highlightRow = true
+      for (tip <- work.tips) {
+        val row = makeRow(tip.percentage, tip.tip, tip.total)
+        if (highlightRow) {
+          row.setBackgroundColor(Color.parseColor("#222222"))
+        }
+        highlightRow = !highlightRow
+        output_table.addView(row)
+      }
     }
   }
 }
