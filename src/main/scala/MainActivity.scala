@@ -43,7 +43,7 @@ object Logic {
     if (cents >= 100) {
       return "$%d.%02d".format(cents/100, cents%100)
     } else {
-      return ".%02d".format(cents)
+      return "%02d¢".format(cents)
     }
   }
 
@@ -105,14 +105,6 @@ object Logic {
     }
     pairsCache(cents) = pairs
     return pairs
-  }
-
-  def pad(input: String, length: Int): String = {
-    var output = input
-    while (output.length < length) {
-      output = " " + output
-    }
-    output
   }
 
   class Tip {
