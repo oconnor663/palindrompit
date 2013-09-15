@@ -11,6 +11,7 @@ import scala.util.control.Breaks._
 import scala.actors.Actor
 import android.view.{Gravity, ViewGroup, View, WindowManager}
 import android.graphics.Color
+import android.view.View.OnClickListener
 
 object Logic {
   val allPalCache = new HashMap[Int, ArrayBuffer[Int]]
@@ -163,6 +164,7 @@ class MainActivity extends Activity with TypedActivity {
   var input: EditText= null
   var output_text: TextView = null
   var output_table: TableLayout = null
+  var clear_button: Button = null
   var currentJob: Int = 0
 
   override def onCreate(bundle: Bundle) {
@@ -175,6 +177,7 @@ class MainActivity extends Activity with TypedActivity {
     input = findView(TR.input)
     output_text = findView(TR.output_text)
     output_table = findView(TR.output_table)
+    clear_button = findView(TR.clear_button)
 
     val thisActivity = this
     input.addTextChangedListener(new TextWatcher {
@@ -192,6 +195,12 @@ class MainActivity extends Activity with TypedActivity {
       }
       def afterTextChanged(s: Editable) {}
       def beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+    })
+
+    clear_button.setOnClickListener(new OnClickListener {
+      def onClick(p1: View) {
+        input.setText("")
+      }
     })
   }
 
