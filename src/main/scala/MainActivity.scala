@@ -14,23 +14,23 @@ import android.graphics.Color
 import android.view.View.OnClickListener
 
 object Logic {
-  val allPalCache = new HashMap[Int, ArrayBuffer[Int]]
-    with SynchronizedMap[Int, ArrayBuffer[Int]]
-  val pairsCache = new HashMap[Int, ArrayBuffer[Int]]
-    with SynchronizedMap[Int, ArrayBuffer[Int]]
+  val allPalCache = new HashMap[Long, ArrayBuffer[Long]]
+    with SynchronizedMap[Long, ArrayBuffer[Long]]
+  val pairsCache = new HashMap[Long, ArrayBuffer[Long]]
+    with SynchronizedMap[Long, ArrayBuffer[Long]]
 
-  def priceToCents(price: String): Int = {
+  def priceToCents(price: String): Long = {
     val parts = price.split("\\.")
-    var ret = 0
+    var ret = 0L
     if (parts.length >= 1 && parts(0) != "") {
-      val dollarsPlace = parts(0).toInt
+      val dollarsPlace = parts(0).toLong
       if (dollarsPlace >= 1000000) {
         throw new IllegalArgumentException("No prices higher than $1 million")
       }
       ret += 100 * dollarsPlace
     }
     if (parts.length >= 2 && parts(1) != "") {
-      val centsPlace = parts(1).toInt
+      val centsPlace = parts(1).toLong
       if (centsPlace >= 100) {
         throw new IllegalArgumentException("Cents place too long")
       }
@@ -40,7 +40,7 @@ object Logic {
     ret
   }
 
-  def formatPrice(cents: Int): String = {
+  def formatPrice(cents: Long): String = {
     if (cents >= 100) {
       return "$%d.%02d".format(cents/100, cents%100)
     } else {
@@ -48,18 +48,18 @@ object Logic {
     }
   }
 
-  def isPalindrome(cents: Int): Boolean = {
+  def isPalindrome(cents: Long): Boolean = {
     // Deal with the leading zero on a single-digit cent value
     val s = ("%02d" format cents)
     s == s.reverse
   }
 
-  def allPalindromes(length: Int): ArrayBuffer[Int] = {
+  def allPalindromes(length: Int): ArrayBuffer[Long] = {
     if (allPalCache.contains(length)) {
       return allPalCache(length)
     }
 
-    val ret = new ArrayBuffer[Int]
+    val ret = new ArrayBuffer[Long]
 
     if (length < 2) {
       // There are no palindromes of length 1, because we're counting cents
@@ -69,15 +69,15 @@ object Logic {
 
     val partLen = (length + 1) / 2
     val evenLen = (length % 2 == 0)
-    for (part <- 1 until math.pow(10, partLen).toInt) {
+    for (part <- 1L until math.pow(10, partLen).toLong) {
       if (part % 10 != 0) {
         val s = ("%0" + partLen + "d").format(part)
-        var palindrome = 0
+        var palindrome = 0L
         if (evenLen) {
-          palindrome = (s.reverse + s).toInt
+          palindrome = (s.reverse + s).toLong
         }
         else {
-          palindrome = (s.reverse.slice(0, partLen-1) + s).toInt
+          palindrome = (s.reverse.slice(0, partLen-1) + s).toLong
         }
         ret.append(palindrome)
       }
@@ -86,11 +86,11 @@ object Logic {
     return allPalCache(length)
   }
 
-  def palindromePairs(cents: Int): ArrayBuffer[Int] = {
+  def palindromePairs(cents: Long): ArrayBuffer[Long] = {
     if (pairsCache.contains(cents)) {
       return pairsCache(cents)
     }
-    val pairs = ArrayBuffer[Int]()
+    val pairs = ArrayBuffer[Long]()
     breakable {
       for (length <- 1 to cents.toString.length) {
         for (pal <- allPalindromes(length)) {
@@ -121,7 +121,7 @@ object Logic {
 
   def tipResultFromPrice(price: String): TipResult = {
     var result = new TipResult
-    var cents = 0
+    var cents = 0L
     try {
       cents = priceToCents(price)
     } catch {
@@ -165,7 +165,7 @@ class MainActivity extends Activity with TypedActivity {
   var output_text: TextView = null
   var output_table: TableLayout = null
   var clear_button: Button = null
-  var currentJob: Int = 0
+  var currentJob = 0
 
   override def onCreate(bundle: Bundle) {
     super.onCreate(bundle)

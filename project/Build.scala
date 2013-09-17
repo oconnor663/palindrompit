@@ -6,8 +6,8 @@ import AndroidKeys._
 object General {
   val settings = Defaults.defaultSettings ++ Seq (
     name := "Palindrompit",
-    version := "0.1.1",
-    versionCode := 2,
+    version := "0.1.2",
+    versionCode := 4,
     scalaVersion := "2.9.2",
     platformName in Android := "android-16",
     javacOptions ++= Seq("-encoding", "UTF-8", "-source", "1.6", "-target", "1.6")
