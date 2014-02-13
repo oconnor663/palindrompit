@@ -30,7 +30,11 @@ object Logic {
       ret += 100 * dollarsPlace
     }
     if (parts.length >= 2 && parts(1) != "") {
-      val centsPlace = parts(1).toLong
+      var centsString = parts(1)
+      if (centsString.length == 1) {
+        centsString += "0"
+      }
+      val centsPlace = centsString.toLong
       if (centsPlace >= 100) {
         throw new IllegalArgumentException("Cents place too long")
       }
