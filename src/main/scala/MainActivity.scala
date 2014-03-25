@@ -143,7 +143,7 @@ object Logic {
         val tip = new Tip
         tip.tip = formatPrice(pair)
         tip.total = formatPrice(cents + pair)
-        tip.percentage = "%" + (pair * 100 / cents)
+        tip.percentage = (pair * 100 / cents) + "%"
         result.tips.append(tip)
       }
     }
