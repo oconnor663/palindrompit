@@ -1,6 +1,8 @@
 ##Palindrompit
 ![screenshot](https://github.com/oconnor663/palindrompit/raw/master/screenshot.png)
 
+[Play Store](https://play.google.com/store/apps/details?id=com.jack5.palindrompit)
+
 For Emily. An Android tip calculator of sorts, which finds palindrome tips that
 give palindrome totals.
 
